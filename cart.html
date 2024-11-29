@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="electronics.css"> <!-- Your existing CSS -->
+    <title>Shopping Cart</title>
+
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5czdmhM93NHdbv8oa1z9p5eHlGGK9PAQ",
+            authDomain: "techexpress-13065.firebaseapp.com",
+            projectId: "techexpress-13065",
+            storageBucket: "techexpress-13065.appspot.com",
+            messagingSenderId: "932281529836",
+            appId: "1:932281529836:web:d2e04305aed9b98cfafcc9",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const functions = getFunctions(app);
+
+        const prices = {
+            "Cameras": 1500,
+            "Headphones": 799,
+            "IPads": 2500,
+            "Laptops": 2000,
+            "Smartphones": 1500,
+            "TVs": 3000
+        };
+
+        // Ensure persistence for the authentication session
+        setPersistence(auth, browserLocalPersistence).catch((error) => {
+            console.error('Error setting persistence:', error);
+        });
+
+        // When user is logged in, load cart items
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadCartItems();
+            } else {
+                alert('Please log in to view your cart.');
+                window.location.href = 'login.html'; // Redirect to login page
+            }
+        });
+
+        // Function to load cart items from Firestore
+        async function loadCartItems() {
+            const user = auth.currentUser;
+            const cartContainer = document.getElementById('cart-items');
+            const totalPriceElement = document.getElementById('total-price');
+            cartContainer.innerHTML = ''; // Clear previous items
+            let totalPrice = 0;
+
+            if (user) {
+                const cartDocRef = doc(db, 'carts', user.uid); // Access user's cart document
+                const cartDoc = await getDoc(cartDocRef);
+
+                if (cartDoc.exists()) {
+                    const cartData = cartDoc.data();
+                    const itemsCount = {};
+
+                    // Count the quantity of each item and ensure prices are calculated correctly
+                    cartData.items.forEach(item => {
+                        if (!itemsCount[item.name]) {
+                            itemsCount[item.name] = {
+                                ...item,
+                                quantity: 0,
+                                image: getProductImage(item.name),
+                                price: prices[item.name] || 0 // Fetch the price from the prices object
+                            };
+                        }
+                        itemsCount[item.name].quantity++;
+                    });
+
+                    // Display cart items
+                    Object.values(itemsCount).forEach(item => {
+                        totalPrice += item.quantity * item.price;
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'cart-item';
+                        itemElement.innerHTML = `
+                            <div class="item-info">
+                                <img src="${item.image}" alt="${item.name}" class="item-image" />
+                                <div class="item-details">
+                                    <h4>${item.name} (x${item.quantity})</h4>
+                                    <p>Price: $${item.price.toFixed(2)}</p>
+                                    <button class="button" onclick="removeFromCart('${item.name}')">Remove</button>
+                                </div>
+                            </div>
+                        `;
+                        cartContainer.appendChild(itemElement);
+                    });
+
+                    // Display total price
+                    totalPriceElement.textContent = `Total Price: $${totalPrice.toFixed(2)}`;
+                } else {
+                    cartContainer.innerHTML = '<p>Your cart is empty.</p>';
+                }
+            } else {
+                cartContainer.innerHTML = '<p>Please log in to view your cart.</p>';
+            }
+        }
+
+        // Function to get product image based on the item name
+        function getProductImage(productName) {
+            switch (productName) {
+                case 'Cameras':
+                    return 'assets/camera2.jpg';
+                case 'Headphones':
+                    return 'assets/headphones.jpg';
+                case 'IPads':
+                    return 'assets/ipad2.jpg';
+                case 'Laptops':
+                    return 'assets/laptop2.jpg';
+                case 'Smartphones':
+                    return 'assets/phones.jpg';
+                case 'TVs':
+                    return 'assets/television.jpg';
+                default:
+                    return 'assets/default-image.jpg'; // Default image if no match
+            }
+        }
+
+        // Attach removeFromCart function to the global window object
+        window.removeFromCart = async function(itemName) {
+            const user = auth.currentUser;
+            if (user) {
+                const cartDocRef = doc(db, 'carts', user.uid);
+                const cartDoc = await getDoc(cartDocRef);
+                if (cartDoc.exists()) {
+                    const cartData = cartDoc.data();
+                    const updatedItems = [];
+
+                    // Remove only one instance of the item and update the UI immediately
+                    let itemRemoved = false;
+                    cartData.items.forEach(item => {
+                        if (item.name === itemName && !itemRemoved) {
+                            itemRemoved = true; // Remove only one instance
+                        } else {
+                            updatedItems.push(item);
+                        }
+                    });
+
+                    await setDoc(cartDocRef, { items: updatedItems }, { merge: true });
+                    loadCartItems(); // Refresh cart items and total without refreshing the page
+                }
+            }
+        };
+
+        // REST API function for adding/removing items from the cart (calling Firebase Cloud Function)
+        const apiAddToCart = httpsCallable(functions, 'addToCart');
+        const apiRemoveFromCart = httpsCallable(functions, 'removeFromCart');
+    </script>
+
+    <style>
+        .cart-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .item-image {
+            width: 100px;
+            height: 100px;
+            margin-right: 20px;
+        }
+
+        .item-details {
+            flex-grow: 1;
+        }
+
+        .item-info {
+            display: flex;
+            align-items: center;
+        }
+
+        #total-price {
+            font-size: 1.5em;
+            margin-top: 20px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="links">
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="aboutus.html">About Us</a></li>
+                <li><a href="product.html">Products</a></li>
+                <li><a href="contactus.html">Contact Us</a></li>
+                <li><a href="cart.html" class="button">Cart</a></li>
+            </ul>
+        </div>
+        <div class="sign">
+            <a target="_blank" href="login.html">Signup/Signin</a>
+        </div>
+    </nav>
+
+    <div class="cart">
+        <h1>Your Shopping Cart</h1>
+        <div id="cart-items"></div>
+        <div id="total-price"></div>
+        <button id="checkout-button" class="button">Proceed to Checkout</button>
+    </div>
+
+    <script>
+        document.getElementById('checkout-button').addEventListener('click', function() {
+            window.location.href = 'checkout.html'; // Redirect to checkout page
+        });
+    </script>
+</body>
+</html>

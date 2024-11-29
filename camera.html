@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/6e53dbf98c.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="electronics.css">
+    <title>Camera</title>
+
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5czdmhM93NHdbv8oa1z9p5eHlGGK9PAQ",
+            authDomain: "techexpress-13065.firebaseapp.com",
+            projectId: "techexpress-13065",
+            storageBucket: "techexpress-13065",
+            messagingSenderId: "932281529836",
+            appId: "1:932281529836:web:d2e04305aed9b98cfafcc9",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Set persistence for authentication
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                await setPersistence(auth, browserLocalPersistence);
+                console.log("Persistence set to local.");
+            } catch (error) {
+                console.error('Error setting persistence:', error);
+            }
+
+            // Check for user state
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    console.log('User is logged in:', user.uid);
+                    loadComments(); // Load comments if user is logged in
+                } else {
+                    alert('Please log in to view and interact with this page.');
+                    window.location.href = 'signup.html'; // Redirect to signup/login page
+                }
+            });
+
+            // Handle Comment Submission
+            document.getElementById('comment-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const commentText = document.getElementById('comment').value;
+                const user = auth.currentUser;
+
+                if (user) {
+                    await addDoc(collection(db, 'products', 'cameras', 'comments'), {
+                        userId: user.uid,
+                        comment: commentText,
+                        timestamp: new Date()
+                    });
+                    document.getElementById('comment').value = ''; // Clear the comment input
+                    loadComments(); // Reload comments
+                } else {
+                    alert('Please log in to comment.');
+                }
+            });
+        });
+
+        // Load Comments
+        async function loadComments() {
+            const commentsSnapshot = await getDocs(collection(db, 'products', 'cameras', 'comments'));
+            const commentsSection = document.getElementById('comments-section');
+            commentsSection.innerHTML = ''; // Clear existing comments
+
+            commentsSnapshot.forEach(doc => {
+                const commentData = doc.data();
+                const commentElement = document.createElement('div');
+                commentElement.innerHTML = `<strong>User ${commentData.userId}</strong>: ${commentData.comment}`;
+                commentsSection.appendChild(commentElement);
+            });
+        }
+
+        // Add to Cart Functionality
+        document.getElementById('add-to-cart').addEventListener('click', async function() {
+            const user = auth.currentUser; // Get the currently logged-in user
+
+            if (!user) {
+                alert('Please log in to add products to the cart.');
+                return;
+            }
+
+            const product = {
+                name: "Cameras",
+                priceRange: "$1500"
+            };
+
+            // Reference the user's cart document using their UID
+            const cartDocRef = doc(db, 'carts', user.uid);
+
+            try {
+                // Create or update the user's cart document
+                await setDoc(cartDocRef, {
+                    items: arrayUnion(product) // Add the product to the items array
+                }, { merge: true });
+
+                alert('Product added to cart!');
+            } catch (error) {
+                console.error('Error adding product to cart:', error);
+            }
+        });
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="links">
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="aboutus.html">About Us</a></li>
+                <li class="inst">
+                    <a href="#" class="dropdown-container">Products <i class="fa fa-chevron-down"></i></a>
+                    <div class="drop">
+                        <div class="link"><a href="product.html">All Products</a></div>
+                        <div class="link"><a href="camera.html">Camera</a></div>
+                        <div class="link"><a href="headphone.html">Headphone</a></div>
+                        <div class="link"><a href="Smartphones.html">Smartphones</a></div>
+                        <div class="link"><a href="laptops.html">Laptops</a></div>
+                        <div class="link"><a href="vr.html">IPads</a></div>
+                        <div class="link"><a href="tv.html">TV</a></div>
+                    </div>
+                </li>
+                <li><a href="contactus.html">Contact us</a></li>
+                <li><a href="cart.html" class="button">Cart</a></li> <!-- Cart Button -->
+            </ul>
+        </div>
+        <div class="sign">
+            <a target="_blank" href="signup.html">Signup/Signin</a>
+        </div>
+    </nav>
+
+    <div class="org">
+        <div class="pic">
+            <img src="assets/camera2.jpg" alt="camera">
+        </div>
+        <div class="area">
+            <h1 class="head">Cameras</h1>
+            <p><b>TechExpress offers a wide range of high-quality cameras that are perfect for capturing life's unforgettable moments...</b></p>
+            <h3 class="pri">Price: $1500</h3>
+
+            <!-- Add to Cart Button -->
+            <button id="add-to-cart" class="button">Add to Cart</button>
+
+            <!-- Comment Section -->
+            <form id="comment-form">
+                <textarea id="comment" cols="30" rows="3" placeholder="Add Comment" required></textarea><br>
+                <input class="button" type="submit" value="Comment">
+            </form>
+            
+            <!-- Display Comments -->
+            <h3>Comments:</h3>
+            <div id="comments-section"></div>
+        </div>
+    </div>
+</body>
+</html>

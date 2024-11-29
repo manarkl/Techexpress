@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://kit.fontawesome.com/6e53dbf98c.js" crossorigin="anonymous"></script>
+    <title>Home page</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="electronics.css">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5czdmhM93NHdbv8oa1z9p5eHlGGK9PAQ",
+            authDomain: "techexpress-13065.firebaseapp.com",
+            projectId: "techexpress-13065",
+            storageBucket: "techexpress-13065.appspot.com",
+            messagingSenderId: "932281529836",
+            appId: "1:932281529836:web:d2e04305aed9b98cfafcc9",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Check if user is logged in
+        onAuthStateChanged(auth, function(user) {
+            if (user) {
+                console.log('User is logged in:', user.uid);
+                // Hide login link and show logout link
+                document.getElementById('login-link').style.display = 'none';
+                document.getElementById('logout-link').style.display = 'block';
+            } else {
+                console.log('No user is logged in.');
+                // Show login link and hide logout link
+                document.getElementById('login-link').style.display = 'block';
+                document.getElementById('logout-link').style.display = 'none';
+            }
+        });
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="links">
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="aboutus.html">About Us</a></li>
+                <li class="inst">
+                    <a href="#" class="dropdown-container">Products <i class="fa fa-chevron-down"></i></a>
+                    <div class="drop">
+                        <div class="link"><a href="product.html">All Products</a></div>
+                        <div class="link"><a href="camera.html">Camera</a></div>
+                        <div class="link"><a href="headphone.html">Headphone</a></div>
+                        <div class="link"><a href="smartphones.html">Smartphones</a></div>
+                        <div class="link"><a href="laptops.html">Laptops</a></div>
+                        <div class="link"><a href="vr.html">IPads</a></div>
+                        <div class="link"><a href="tv.html">TV</a></div>
+                    </div>
+                </li>
+                <li><a href="contactus.html">Contact us</a></li>
+            </ul>
+        </div>
+        <div class="sign">
+            <!-- Login/Signup link will be replaced by Logout button when user is logged in -->
+            <a target="_blank" href="signup.html" id="login-link">Signup/Signin</a>
+            <a href="logout.html" id="logout-link" style="display: none;">Logout</a>
+        </div>
+    </nav>
+
+    <div class="home">
+        <h1>Welcome to TechExpress!</h1>
+    </div>
+    <div class="main">
+        <div class="content">
+            <p><b>Thank you for visiting TechExpress, your one-stop shop for all things tech...</b></p>
+        </div>
+        <div class="content">
+            <img src="assets/ipad.jpg" alt="latest">
+        </div>
+    </div>
+    <div class="main">
+        <div class="content">
+            <img src="assets/laptop.jpg" alt="repair">
+        </div>
+        <div class="content">
+            <p><b>At TechExpress, we're passionate about technology and its potential...</b></p>
+        </div>
+    </div>
+
+    <script>
+        $('.dropdown-container').click(function () {
+            if ($('.drop').is(':visible')) {
+                $('.drop').delay(200).slideUp();
+            } else {
+                $('.drop').delay(200).slideDown();
+            }
+        });
+    </script>
+</body>
+</html>

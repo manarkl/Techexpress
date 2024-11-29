@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="electronics.css">
+    <title>Logout</title>
+    <!-- Firebase App and Auth -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5czdmhM93NHdbv8oa1z9p5eHlGGK9PAQ",
+            authDomain: "techexpress-13065.firebaseapp.com",
+            projectId: "techexpress-13065",
+            storageBucket: "techexpress-13065.appspot.com",
+            messagingSenderId: "932281529836",
+            appId: "1:932281529836:web:d2e04305aed9b98cfafcc9",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Logout functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            signOut(auth).then(() => {
+                alert("You have been logged out.");
+                window.location.href = 'home.html';  // Redirect to home page after logout
+            }).catch((error) => {
+                console.error("Error during logout:", error);
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="logout-message">
+        <h1>Logging you out...</h1>
+    </div>
+</body>
+</html>

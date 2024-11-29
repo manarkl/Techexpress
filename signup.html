@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="electronics.css"> <!-- Your existing CSS -->
+    <title>Sign Up</title>
+
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5czdmhM93NHdbv8oa1z9p5eHlGGK9PAQ",
+            authDomain: "techexpress-13065.firebaseapp.com",
+            projectId: "techexpress-13065",
+            storageBucket: "techexpress-13065.appspot.com",
+            messagingSenderId: "932281529836",
+            appId: "1:932281529836:web:d2e04305aed9b98cfafcc9",
+            measurementId: "G-6GRFQBT18C"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Handle Signup
+        document.addEventListener('DOMContentLoaded', function() {
+            const signupForm = document.getElementById('signup-form');
+            signupForm.addEventListener('submit', function (e) {
+                e.preventDefault(); // Prevent the default form submission
+
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                // Validate form inputs
+                if (!name || !email || !password) {
+                    document.getElementById('error-message').textContent = 'All fields are required.';
+                    return;
+                }
+
+                // Use Fetch to call the Firebase Cloud Function
+                fetch('https://us-central1-techexpress-13065.cloudfunctions.net/signupuser/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, password })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message); // Show success message
+                        window.location.href = 'home.html';  // Redirect to home page after signup
+                    } else {
+                        document.getElementById('error-message').textContent = 'Error: ' + data.error; // Show error
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('error-message').textContent = 'Error: ' + error.message; // Display error message
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="links">
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="aboutus.html">About Us</a></li>
+                <li><a href="product.html">Products</a></li>
+                <li><a href="contactus.html">Contact Us</a></li>
+            </ul>
+        </div>
+        <div class="sign">
+            <a target="_blank" href="signup.html">Signup/Signin</a>
+        </div>
+    </nav>
+
+    <!-- Signup Form -->
+    <div class="signup">
+        <form id="signup-form">
+            <h1>Create an Account</h1>
+
+            <!-- Name Field -->
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" required placeholder="Enter your name">
+            </div>
+
+            <!-- Email Field -->
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required placeholder="Enter your email">
+            </div>
+
+            <!-- Password Field with Toggle -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="Enter your password">
+                <button type="button" id="toggle-password" class="button">Show</button>
+            </div>
+
+            <!-- Signup Button -->
+            <button type="submit" class="button">Sign Up</button>
+
+            <!-- Error Message -->
+            <div id="error-message" style="color: red; margin-top: 10px;"></div>
+
+            <!-- Link to Login Page -->
+            <p style="margin-top: 10px;">Already have an account? <a href="login.html">Log in here</a>.</p>
+        </form>
+    </div>
+
+    <script>
+        // Toggle Password Visibility
+        document.getElementById('toggle-password').addEventListener('click', function () {
+            const passwordField = document.getElementById('password');
+            const passwordType = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', passwordType);
+            this.textContent = passwordType === 'password' ? 'Show' : 'Hide';
+        });
+    </script>
+</body>
+</html>

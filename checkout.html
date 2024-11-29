@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="electronics.css"> <!-- Your existing CSS -->
+    <title>Checkout</title>
+
+    <script type="module">
+        // Import Firebase libraries
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5czdmhM93NHdbv8oa1z9p5eHlGGK9PAQ",
+            authDomain: "techexpress-13065.firebaseapp.com",
+            projectId: "techexpress-13065",
+            storageBucket: "techexpress-13065",
+            messagingSenderId: "932281529836",
+            appId: "1:932281529836:web:d2e04305aed9b98cfafcc9",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Load cart items and display order summary
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadCartItems(user.uid); // Load cart items for the logged-in user
+            } else {
+                alert('Please log in to proceed with checkout.');
+                window.location.href = 'signup.html'; // Redirect to login page
+            }
+        });
+
+        async function loadCartItems(userId) {
+            const orderSummary = document.getElementById('order-summary');
+            const totalPriceElement = document.getElementById('total-price');
+            let totalPrice = 0;
+
+            const cartDocRef = doc(db, 'carts', userId); // Access user's cart document
+            const cartDoc = await getDoc(cartDocRef);
+
+            if (cartDoc.exists()) {
+                const cartData = cartDoc.data();
+                const itemsCount = {};
+
+                // Count the quantity of each item
+                cartData.items.forEach(item => {
+                    if (!itemsCount[item.name]) {
+                        itemsCount[item.name] = {
+                            ...item,
+                            quantity: 0,
+                            price: getProductPrice(item.name), // Get the price for the item
+                            image: getProductImage(item.name) // Get the image for the item
+                        };
+                    }
+                    itemsCount[item.name].quantity++;
+                });
+
+                // Display order items
+                Object.values(itemsCount).forEach(item => {
+                    totalPrice += item.quantity * item.price;
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'order-item';
+                    itemElement.innerHTML = `
+                        <div class="item-info">
+                            <img src="${item.image}" alt="${item.name}" class="item-image" />
+                            <div class="item-details">
+                                <h4>${item.name} (x${item.quantity})</h4>
+                                <p>Price: $${item.price.toFixed(2)}</p>
+                                <p>Total: $${(item.quantity * item.price).toFixed(2)}</p>
+                            </div>
+                        </div>
+                    `;
+                    orderSummary.appendChild(itemElement);
+                });
+
+                // Display total price
+                totalPriceElement.textContent = `Total Price: $${totalPrice.toFixed(2)}`;
+            } else {
+                orderSummary.innerHTML = '<p>Your cart is empty.</p>';
+            }
+        }
+
+        // Function to get product price based on the item name
+        function getProductPrice(productName) {
+            switch (productName.toLowerCase()) {
+                case 'headphones':
+                    return 799;
+                case 'laptops':
+                    return 2000;
+                case 'cameras':
+                    return 1500;
+                case 'smartphones':
+                    return 1500;
+                case 'tvs':
+                    return 3000;
+                case 'vr':
+                    return 2500;
+                default:
+                    return 0; // Default price if no match
+            }
+        }
+
+        // Function to get product image based on the item name
+        function getProductImage(productName) {
+            switch (productName.toLowerCase()) {
+                case 'cameras':
+                    return 'assets/camera2.jpg';
+                case 'headphones':
+                    return 'assets/headphones.jpg';
+                case 'ipads':
+                    return 'assets/ipad2.jpg';
+                case 'laptops':
+                    return 'assets/laptop2.jpg';
+                case 'smartphones':
+                    return 'assets/phones.jpg';
+                case 'tvs':
+                    return 'assets/television.jpg';
+                case 'vr':
+                    return 'assets/ipad2.jpg'; // Assuming VR uses the same image as iPads
+                default:
+                    return 'assets/default-image.jpg'; // Default image if no match
+            }
+        }
+
+        // Handle order submission
+        document.getElementById('checkout-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const billingName = document.getElementById('billing-name').value;
+            const billingEmail = document.getElementById('billing-email').value;
+            const billingPhone = document.getElementById('billing-phone').value;
+            const shippingAddress = document.getElementById('shipping-address').value;
+            const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+
+            if (billingName && billingEmail && billingPhone && shippingAddress && paymentMethod) {
+                // Redirect to confirmation page
+                window.location.href = 'confirmation.html'; // Change this to confirmation page
+            } else {
+                alert("Please fill out all fields correctly.");
+            }
+        });
+    </script>
+
+    <style>
+        .checkout-section {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .checkout-section h2 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .billing-info, .shipping-info {
+            margin-bottom: 20px;
+        }
+
+        .checkout-section label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+
+        .checkout-section input,
+        .checkout-section select,
+        .checkout-section textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .checkout-section .order-summary {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        #total-price {
+            font-size: 1.2em;
+            text-align: right;
+            margin-top: 20px;
+        }
+.item-image {
+    width: 50px; /* Set a smaller width */
+    height: 50px; /* Set a smaller height */
+    margin-right: 20px;
+}
+        .checkout-button {
+            width: 100%;
+            padding: 15px;
+            background-color: #555fa3;
+            color: white;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .checkout-button:hover {
+            background-color: #3c3295;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="links">
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="aboutus.html">About Us</a></li>
+                <li><a href="product.html">Products</a></li>
+                <li><a href="contactus.html">Contact Us</a></li>
+            </ul>
+        </div>
+        <div class="sign">
+            <a href="signup.html">Signup/Signin</a>
+        </div>
+    </nav>
+
+    <div class="checkout-section">
+        <h2>Checkout</h2>
+        <form id="checkout-form">
+            <div class="billing-info">
+                <h3>Billing Information</h3>
+                <label for="billing-name">Full Name</label>
+                <input type="text" id="billing-name" required>
+
+                <label for="billing-email">Email</label>
+                <input type="email" id="billing-email" required>
+
+                <label for="billing-phone">Phone</label>
+                <input type="tel" id="billing-phone" required>
+            </div>
+
+            <div class="shipping-info">
+                <h3>Shipping Address</h3>
+                <label for="shipping-address">Address</label>
+                <textarea id="shipping-address" rows="3" required></textarea>
+            </div>
+
+            <div class="payment-info">
+                <h3>Payment Method</h3>
+                <label><input type="radio" name="payment-method" value="Credit Card" required> Credit Card</label>
+                <label><input type="radio" name="payment-method" value="PayPal" required> PayPal</label>
+                <label><input type="radio" name="payment-method" value="Cash on Delivery" required> Cash on Delivery</label>
+            </div>
+
+            <div class="order-summary">
+                <h3>Order Summary</h3>
+                <div id="order-summary"></div>
+                <div id="total-price"></div>
+            </div>
+
+            <button type="submit" class="checkout-button">Place Order</button>
+        </form>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="electronics.css"> <!-- Your existing CSS -->
+    <title>Login</title>
+
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5czdmhM93NHdbv8oa1z9p5eHlGGK9PAQ",
+            authDomain: "techexpress-13065.firebaseapp.com",
+            projectId: "techexpress-13065",
+            storageBucket: "techexpress-13065.appspot.com",
+            messagingSenderId: "932281529836",
+            appId: "1:932281529836:web:d2e04305aed9b98cfafcc9",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Handle persistence setting
+            try {
+                await setPersistence(auth, browserLocalPersistence);
+            } catch (error) {
+                console.error('Error setting persistence:', error);
+            }
+
+            // Handle Login
+            const loginForm = document.getElementById('login-form');
+            loginForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                // Firebase Login
+                signInWithEmailAndPassword(auth, email, password)
+                    .then(userCredential => {
+                        // Logged in successfully
+                        alert("Login successful!");
+                        window.location.href = 'home.html';  // Redirect to home page
+                    })
+                    .catch(error => {
+                        const errorMessage = error.message;
+                        document.getElementById('error-message').textContent = errorMessage;
+                    });
+            });
+
+            // Flag to prevent redundant redirects and alerts
+            let isLoginAttempted = false;
+
+            // Handle user state change
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    console.log('User is logged in:', user.uid);
+                    loadComments();  // Call your functions that need authentication
+                    handleCart();  // Handle cart functions
+                } else if (!isLoginAttempted) {
+                    // Prevent showing alert if login is in progress
+                    console.log('No user is logged in.');
+                    alert('Please log in to view your cart.');
+                    window.location.href = 'login.html'; // Redirect to login page
+                }
+            });
+
+            // Set the flag to true after login attempt
+            isLoginAttempted = true;
+        });
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="links">
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="aboutus.html">About Us</a></li>
+                <li><a href="product.html">Products</a></li>
+                <li><a href="contactus.html">Contact Us</a></li>
+            </ul>
+        </div>
+        <div class="sign">
+            <a href="signup.html">Signup/Signin</a>
+        </div>
+    </nav>
+
+    <!-- Login Form -->
+    <div class="login">
+        <form id="login-form">
+            <h1>Login to Your Account</h1>
+
+            <!-- Email Field -->
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required placeholder="Enter your email">
+            </div>
+
+            <!-- Password Field with Toggle -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="Enter your password">
+                <button type="button" id="toggle-password" class="button">Show</button>
+            </div>
+
+            <!-- Login Button -->
+            <button type="submit" class="button">Log In</button>
+
+            <!-- Error Message -->
+            <div id="error-message" style="color: red; margin-top: 10px;"></div>
+
+            <!-- Link to Signup Page -->
+            <p style="margin-top: 10px;">Don't have an account? <a href="signup.html">Sign up here</a>.</p>
+        </form>
+    </div>
+
+    <script>
+        // Toggle Password Visibility
+        document.getElementById('toggle-password').addEventListener('click', function () {
+            const passwordField = document.getElementById('password');
+            const passwordType = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', passwordType);
+            this.textContent = passwordType === 'password' ? 'Show' : 'Hide';
+        });
+    </script>
+</body>
+</html>

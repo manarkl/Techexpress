@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/6e53dbf98c.js" crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script> 
+$(document).ready(function(){
+  $("#flip").click(function(){
+    $("#panel").slideToggle("slow");
+  });
+});
+
+$(document).ready(function(){
+  $("#flip1").click(function(){
+    $("#panel1").slideToggle("slow");
+  });
+});
+</script>
+<link rel="stylesheet" href="electronics.css">
+   
+    <title>aboutus</title>
+</head>
+<body>
+    <nav>
+            <div class="links">
+                <ul>
+                <li>
+                    <a href="home.html">Home</a>
+                </li>
+                <li>
+                    <a href="aboutus.html">About Us</a>
+                </li>
+                <li class="inst">
+                    <a href="#" class="dropdown-container">Products <i class="fa fa-chevron-down"></i></a>
+                    <div class="drop">
+                        <div class="link">
+                            <a href="product.html">All Products</a>
+                        </div>
+                        <div class="link">
+                            <a href="camera.html">Camera</a>
+                        </div>
+                        <div class="link">
+                            <a href="headphone.html">Headphone</a>
+                        </div>
+                        <div class="link">
+                            <a href="Smartphones.html">Smartphones</a>
+                        </div>
+                        <div class="link">
+                            <a href="laptops.html">laptops</a>
+                        </div>
+                        <div class="link">
+                            <a href="vr.html">IPads</a>
+                        </div>
+                        <div class="link">
+                            <a href="tv.html">TV</a>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <a href="contactus.html">Contact us</a>
+                </li>
+            </ul>
+            </div>
+            <div class="sign">
+                <a target="_blank" href="signup.html">Signup/Signin</a>
+            </div>
+        </nav>
+		<br><br><br>
+		 
+
+    <div class="outer">
+        <div class="about">
+           <div class="inner">
+          <div id="flip"><b>About Us</b></div>
+<div id="panel"><b>Our mission at TechExpress is to make cutting-edge technology accessible to everyone.<br> We believe that
+ technology has the power to enrich our lives, and we are passionate about sharing that experience with our customers.<br>
+ Our team is dedicated to staying up-to-date with the latest trends and developments in the tech world,
+ so that we can offer you the most relevant and exciting products.<br> We also believe in giving back to the community,
+ <br>and we regularly participate in charitable initiatives and events. Thank you for choosing TechExpress, 
+ and we look forward to serving you!
+</b></div>
+           </div>
+		   <br><br><br>
+           <div class="inner">
+       
+			 <div id="flip1"><b>Team members</b></div>
+<div id="panel1">
+<b>Our team at TechExpress consists of college students majoring
+ in tech-related fields, including computer science, engineering, and information technology.<br>
+ We are passionate about technology and innovation,
+ and our diverse backgrounds and skills enable us to
+ approach problems from different perspectives.<br>
+ We are committed to staying up-to-date with the latest trends and developments in the tech industry, and we are dedicated to providing
+ our customers with the highest quality products and exceptional service.</b></div>
+           </div>
+            
+           </div>
+            <h3>You can contact us at <a href="contactus.html">Contactus</a></h3>
+        </div>
+        
+    </div>
+   <script>
+	  $('.dropdown-container').click(function () {
+    if ($('.drop').is(':visible')) {
+        $('.drop').delay(200).slideUp();
+        console.log(1);
+    } else {
+        $('.drop').delay(200).slideDown();
+        console.log(0);
+    }
+})
+</script>
+</body>
+</html>

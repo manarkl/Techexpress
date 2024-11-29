@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/6e53dbf98c.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="electronics.css">
+    <title>Contact Us</title>
+
+    <script type="module">
+        // Import Firebase libraries
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5czdmhM93NHdbv8oa1z9p5eHlGGK9PAQ",
+            authDomain: "techexpress-13065.firebaseapp.com",
+            projectId: "techexpress-13065",
+            storageBucket: "techexpress-13065.appspot.com",
+            messagingSenderId: "932281529836",
+            appId: "1:932281529836:web:d2e04305aed9b98cfafcc9",
+        };<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/6e53dbf98c.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="electronics.css">
+    <title>Contact Us</title>
+
+    <script type="module">
+        // Import Firebase libraries
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js"; // Import Auth library
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5czdmhM93NHdbv8oa1z9p5eHlGGK9PAQ",
+            authDomain: "techexpress-13065.firebaseapp.com",
+            projectId: "techexpress-13065",
+            storageBucket: "techexpress-13065.appspot.com",
+            messagingSenderId: "932281529836",
+            appId: "1:932281529836:web:d2e04305aed9b98cfafcc9",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app); // Initialize Auth
+
+        // Handle Message Submission
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('contact-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const name = document.querySelector('input[name="name"]').value;
+                const email = document.querySelector('input[name="email"]').value;
+                const messageText = document.querySelector('textarea[name="message"]').value;
+                const user = auth.currentUser; // Get current user
+
+                if (user) {
+                    try {
+                        // Add the message to Firestore
+                        await addDoc(collection(db, 'messages'), {
+                            userId: user.uid,
+                            name: name,
+                            email: email,
+                            message: messageText,
+                            timestamp: new Date()
+                        });
+
+                        alert("Your message has been sent! We will contact you shortly.");
+                        document.getElementById('contact-form').reset(); // Reset the form
+                    } catch (error) {
+                        console.error("Error adding message: ", error);
+                        alert("Error sending your message. Please try again.");
+                    }
+                } else {
+                    alert('Please log in to send a message.');
+                }
+            });
+        });
+
+        // Load Messages (Optional)
+        async function loadMessages() {
+            const messagesSnapshot = await getDocs(collection(db, 'messages'));
+            const messagesSection = document.getElementById('messages-section');
+            messagesSection.innerHTML = ''; // Clear existing messages
+
+            messagesSnapshot.forEach(doc => {
+                const messageData = doc.data();
+                const messageElement = document.createElement('div');
+                messageElement.innerHTML = `<strong>${messageData.name} (${messageData.email})</strong>: ${messageData.message}`;
+                messagesSection.appendChild(messageElement);
+            });
+        }
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="links">
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="aboutus.html">About Us</a></li>
+                <li class="inst">
+                    <a href="#" class="dropdown-container">Products <i class="fa fa-chevron-down"></i></a>
+                    <div class="drop">
+                        <div class="link"><a href="product.html">All Products</a></div>
+                        <div class="link"><a href="camera.html">Camera</a></div>
+                        <div class="link"><a href="headphone.html">Headphone</a></div>
+                        <div class="link"><a href="Smartphones.html">Smartphones</a></div>
+                        <div class="link"><a href="laptops.html">Laptops</a></div>
+                        <div class="link"><a href="vr.html">IPads</a></div>
+                        <div class="link"><a href="tv.html">TV</a></div>
+                    </div>
+                </li>
+                <li><a href="contactus.html">Contact us</a></li>
+            </ul>
+        </div>
+        <div class="sign">
+            <a target="_blank" href="signup.html">Signup/Signin</a>
+        </div>
+    </nav>
+
+    <div class="form">
+        <div class="first">
+            <h1>Contact Form</h1>
+            <form id="contact-form">
+                <input type="text" name="name" placeholder="Enter your name" required><br>
+                <input type="email" name="email" placeholder="Enter Email address" required><br>
+                <textarea name="message" cols="30" rows="10" placeholder="Enter Message" required></textarea><br>
+                <div class="click">
+                    <button type="submit">Submit</button>
+                </div>
+            </form>
+
+            <p id="status-message" style="display:none;"></p> <!-- Message for form submission status -->
+
+            <div onmouseover="mOver(this)" onmouseout="mOut(this)"
+                style="background-color:#555FA3; font-weight:bold; height: 50px; width: 150px; text-align: center; line-height: 40px; border-radius: 15px; border: solid 4px #3C3295">
+                Follow us</div>
+
+            <script>
+                function mOver(obj) {
+                    obj.innerHTML = "Thank You";
+                }
+
+                function mOut(obj) {
+                    obj.innerHTML = "Follow us";
+                }
+            </script>
+
+            <p>
+                <a href="#"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#"><i class="fa-brands fa-youtube"></i></a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        $('.dropdown-container').click(function () {
+            if ($('.drop').is(':visible')) {
+                $('.drop').delay(200).slideUp();
+            } else {
+                $('.drop').delay(200).slideDown();
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Function to send the message to Firestore
+        async function sendMessage(event) {
+            event.preventDefault(); // Prevent the default form submission
+            const name = document.querySelector('input[name="name"]').value;
+            const email = document.querySelector('input[name="email"]').value;
+            const message = document.querySelector('textarea[name="message"]').value;
+
+            if (name && email && message) {
+                try {
+                    // Add the message to Firestore
+                    await addDoc(collection(db, 'messages'), {
+                        name: name,
+                        email: email,
+                        message: message,
+                        timestamp: new Date()
+                    });
+
+                    // Show confirmation alert
+                    alert("Your message has been sent! We will contact you shortly.");
+                    document.getElementById("contact-form").reset(); // Reset the form
+                } catch (error) {
+                    console.error("Error adding message: ", error);
+                    alert("Error sending your message. Please try again.");
+                }
+            } else {
+                alert("Please fill out all fields.");
+            }
+        }
+    </script>
+</head>
+<body>
+    <nav>
+        <div class="links">
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="aboutus.html">About Us</a></li>
+                <li class="inst">
+                    <a href="#" class="dropdown-container">Products <i class="fa fa-chevron-down"></i></a>
+                    <div class="drop">
+                        <div class="link"><a href="product.html">All Products</a></div>
+                        <div class="link"><a href="camera.html">Camera</a></div>
+                        <div class="link"><a href="headphone.html">Headphone</a></div>
+                        <div class="link"><a href="Smartphones.html">Smartphones</a></div>
+                        <div class="link"><a href="laptops.html">Laptops</a></div>
+                        <div class="link"><a href="vr.html">IPads</a></div>
+                        <div class="link"><a href="tv.html">TV</a></div>
+                    </div>
+                </li>
+                <li><a href="contactus.html">Contact us</a></li>
+            </ul>
+        </div>
+        <div class="sign">
+            <a target="_blank" href="signup.html">Signup/Signin</a>
+        </div>
+    </nav>
+
+    <div class="form">
+        <div class="first">
+            <h1>Contact Form</h1>
+            <form id="contact-form">
+                <input type="text" name="name" placeholder="Enter your name" required><br>
+                <input type="email" name="email" placeholder="Enter Email address" required><br>
+                <textarea name="message" cols="30" rows="10" placeholder="Enter Message" required></textarea><br>
+                <div class="click">
+                    <button type="submit" onclick="sendMessage(event)">Submit</button>
+                </div>
+            </form>
+
+            <div onmouseover="mOver(this)" onmouseout="mOut(this)"
+                style="background-color:#555FA3; font-weight:bold; height: 50px; width: 150px; text-align: center; line-height: 40px; border-radius: 15px; border: solid 4px #3C3295">
+                Follow us</div>
+
+            <script>
+                function mOver(obj) {
+                    obj.innerHTML = "Thank You";
+                }
+
+                function mOut(obj) {
+                    obj.innerHTML = "Follow us";
+                }
+            </script>
+
+            <p>
+                <a href="#"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#"><i class="fa-brands fa-youtube"></i></a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        $('.dropdown-container').click(function () {
+            if ($('.drop').is(':visible')) {
+                $('.drop').delay(200).slideUp();
+            } else {
+                $('.drop').delay(200).slideDown();
+            }
+        });
+    </script>
+</body>
+</html>
